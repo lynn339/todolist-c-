@@ -70,6 +70,7 @@ class DeadLineTask : public Task{
 
 };
 
+
 /*int addTask(const std::string &title)
 {
     Task t(title, nextId);   // ①
@@ -80,7 +81,7 @@ class DeadLineTask : public Task{
 
 class ToDoList{
     private: 
-        std::vector<Task> tasks;
+        std::vector<Task*> tasks;
         int nextId;
     public:
     ToDoList(){
@@ -89,10 +90,10 @@ class ToDoList{
 
     int addTask(const std::string &title)
     {
-        Task t(title, nextId);
+        Task *t = new Task(title, nextId);
         tasks.push_back(t);
         nextId++;
-        return t.getId();
+        return t->getId();
     }
 
     void printAll() const{
@@ -101,20 +102,20 @@ class ToDoList{
                 std::cout << "No task anymore!"<< std::endl;
             }
         else{
-            for(const Task &task : tasks)
+            for(const Task *task : tasks)
             {
-                task.print();
+                task->print();
             }
         }
          
     }
     void markDone(int id)
     {
-        for(Task &task : tasks) // 要加&才是傳本人進去 不然不會改到
+        for(Task *task : tasks) // 要加&才是傳本人進去 不然不會改到
         {
-            if(task.getId() == id)
+            if(task->getId() == id)
             {
-                task.markDone();
+                task->markDone();
                 return;
             }
         }
@@ -123,13 +124,20 @@ class ToDoList{
     {
         for(int i = 0; i< tasks.size(); i++)
         {
-            if(tasks[i].getId() == id)
+            if(tasks[i]->getId() == id)
             {
                 tasks.erase(tasks.begin() + i);// 用i刪掉第i格
                 return true;
             }
         }
         return false;
+    }
+    int addDeadlineTask(const std::string &title, const std::string &deadline)
+    {
+        Task *t = new DeadLineTask(title, nextId, deadline);
+        tasks.push_back(t);
+        nextId++;
+        return t->getId();
     }
 
 
@@ -151,6 +159,17 @@ int main()
     std::cout << "刪 1 號：" << list.removeTask(1) << std::endl;
     std::cout << "刪 99 號：" << list.removeTask(99) << std::endl;
     list.printAll();
+    list.addDeadlineTask("交報告", "11/25");
     DeadLineTask d("交報告", 4, "11/25");
     d.print();
+
+    // // 寫法 A：直接放 Task
+    // std::vector<Task> a;
+    // a.push_back(DeadLineTask("交報告", 2, "11/25"));
+    // a[0].print();
+
+    // 寫法 B：放地址
+     std::vector<Task*> b;
+     b.push_back(new DeadLineTask("交報告", 2, "11/25"));
+     b[0]->print();
 }
